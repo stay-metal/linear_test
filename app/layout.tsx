@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { ThemeProvider } from "./theme-provider";
+import AuthSessionProvider from "./session-provider";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -15,7 +16,9 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body className="antialiased bg-gray-50 dark:bg-gray-900 transition-colors">
-        <ThemeProvider>{children}</ThemeProvider>
+        <AuthSessionProvider>
+          <ThemeProvider>{children}</ThemeProvider>
+        </AuthSessionProvider>
       </body>
     </html>
   );

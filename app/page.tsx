@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useTheme } from "./theme-provider";
+import { useSession, signOut } from "next-auth/react";
 
 interface Todo {
   id: number;
@@ -13,6 +14,7 @@ export default function Home() {
   const [todos, setTodos] = useState<Todo[]>([]);
   const [inputValue, setInputValue] = useState("");
   const { theme, toggleTheme } = useTheme();
+  const { data: session } = useSession();
 
   const addTodo = () => {
     if (inputValue.trim() === "") return;
@@ -45,27 +47,48 @@ export default function Home() {
     }
   };
 
+  const handleLogout = async () => {
+    await signOut({ callbackUrl: "/login" });
+  };
+
   return (
     <main className="min-h-screen py-12 px-4">
       <div className="max-w-2xl mx-auto">
-        <div className="flex items-center justify-between mb-8">
+        <div className="flex items-center justify-between mb-4">
           <h1 className="text-4xl font-bold text-gray-800 dark:text-gray-100">
             Todo App
           </h1>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={toggleTheme}
+              className="p-2 rounded-lg bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors"
+              aria-label="Toggle theme"
+            >
+              {theme === "light" ? (
+                <svg xmlns="http://www.w3.org/2000/svg" className="w-6 h-6 text-gray-700" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
+                </svg>
+              ) : (
+                <svg xmlns="http://www.w3.org/2000/svg" className="w-6 h-6 text-yellow-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M12 3v1m0 16v1m8.66-13.66l-.71.71M4.05 19.95l-.71.71M21 12h-1M4 12H3m16.66 7.66l-.71-.71M4.05 4.05l-.71-.71M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
+                </svg>
+              )}
+            </button>
+          </div>
+        </div>
+
+        <div className="mb-8 flex items-center justify-between bg-white dark:bg-gray-800 rounded-lg shadow-sm p-4">
+          <div className="text-sm text-gray-600 dark:text-gray-400">
+            Logged in as{" "}
+            <span className="font-medium text-gray-800 dark:text-gray-100">
+              {session?.user?.name || session?.user?.email}
+            </span>
+          </div>
           <button
-            onClick={toggleTheme}
-            className="p-2 rounded-lg bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors"
-            aria-label="Toggle theme"
+            onClick={handleLogout}
+            className="px-4 py-2 text-sm bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors font-medium"
           >
-            {theme === "light" ? (
-              <svg xmlns="http://www.w3.org/2000/svg" className="w-6 h-6 text-gray-700" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
-              </svg>
-            ) : (
-              <svg xmlns="http://www.w3.org/2000/svg" className="w-6 h-6 text-yellow-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M12 3v1m0 16v1m8.66-13.66l-.71.71M4.05 19.95l-.71.71M21 12h-1M4 12H3m16.66 7.66l-.71-.71M4.05 4.05l-.71-.71M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
-              </svg>
-            )}
+            Logout
           </button>
         </div>
 
