@@ -1,4 +1,4 @@
-import NextAuth, { NextAuthConfig } from "next-auth";
+import NextAuth from "next-auth";
 import Credentials from "next-auth/providers/credentials";
 import bcrypt from "bcryptjs";
 
@@ -11,7 +11,7 @@ interface User {
 
 const users: User[] = [];
 
-export const authConfig: NextAuthConfig = {
+const nextAuth = NextAuth({
   providers: [
     Credentials({
       name: "credentials",
@@ -51,7 +51,7 @@ export const authConfig: NextAuthConfig = {
     signIn: "/login",
   },
   callbacks: {
-    async jwt({ token, user }) {
+    async jwt({ token, user }: any) {
       if (user) {
         token.id = user.id;
         token.email = user.email;
@@ -59,7 +59,7 @@ export const authConfig: NextAuthConfig = {
       }
       return token;
     },
-    async session({ session, token }) {
+    async session({ session, token }: any) {
       if (token && session.user) {
         session.user.id = token.id as string;
         session.user.email = token.email as string;
@@ -69,12 +69,15 @@ export const authConfig: NextAuthConfig = {
     },
   },
   session: {
-    strategy: "jwt",
+    strategy: "jwt" as const,
   },
   secret: process.env.NEXTAUTH_SECRET || "your-secret-key-change-in-production",
-};
+});
 
-export const { handlers, auth, signIn, signOut } = NextAuth(authConfig);
+export const handlers = nextAuth.handlers;
+export const auth = nextAuth.auth;
+export const signIn = nextAuth.signIn;
+export const signOut = nextAuth.signOut;
 
 export async function registerUser(
   email: string,

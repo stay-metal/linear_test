@@ -1,19 +1,21 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
-import { auth } from "@/lib/auth";
 
 export async function middleware(request: NextRequest) {
-  const session = await auth();
+  const sessionToken =
+    request.cookies.get("next-auth.session-token")?.value ||
+    request.cookies.get("__Secure-next-auth.session-token")?.value;
+
   const isAuthPage =
     request.nextUrl.pathname.startsWith("/login") ||
     request.nextUrl.pathname.startsWith("/register");
 
-  if (!session && !isAuthPage) {
+  if (!sessionToken && !isAuthPage) {
     const loginUrl = new URL("/login", request.url);
     return NextResponse.redirect(loginUrl);
   }
 
-  if (session && isAuthPage) {
+  if (sessionToken && isAuthPage) {
     const homeUrl = new URL("/", request.url);
     return NextResponse.redirect(homeUrl);
   }
